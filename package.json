@@ -1,0 +1,24 @@
+{
+  "name": "mcp-demo",
+  "version": "1.0.0",
+  "description": "An example implementation of the upcoming MCP spec",
+  "license": "MIT",
+  "author": "Jeff Escalante",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "@hono/node-server": "^1.14.1",
+    "@modelcontextprotocol/sdk": "^1.11.1",
+    "@vercel/mcp-adapter": "^0.3.1"
+  },
+  "scripts": {
+    "client": "cd client && npm run dev",
+    "resource-server": "cd resource-server && npm run dev",
+    "start": "concurrently \"npm run client\" \"npm run resource-server\"",
+    "deps": "cd client && npm i && cd ../resource-server && npm i"
+  },
+  "packageManager": "pnpm@9.7.0+sha512.dc09430156b427f5ecfc79888899e1c39d2d690f004be70e05230b72cb173d96839587545d09429b55ac3c429c801b4dc3c0e002f653830a420fa2dd4e3cf9cf",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
