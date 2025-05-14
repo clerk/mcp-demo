@@ -8,6 +8,7 @@ import {
   createFakeIncomingMessage,
   createServerResponseAdapter,
 } from "./server-response-adapter";
+import { auth } from "@clerk/nextjs/server";
 
 const debug = _debug("mcp-demo-resource-server");
 
@@ -49,7 +50,13 @@ export async function POST(req: Request) {
       }
     );
   } else {
-    // this is where we should verify the token with clerk
+    debug("Verifying OAuth access token");
+
+    const { subject } = await auth({ acceptsToken: "oauth_token" });
+
+    if (!subject) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   //

@@ -27,7 +27,8 @@ export async function POST(request: Request) {
       token_type: "Bearer",
     }),
     saveTokens: () => undefined,
-    redirectToAuthorization: (url) => undefined, // returns a promise or void
+    // returns a promise or void - seems maybe un-implemented?
+    redirectToAuthorization: (url) => undefined,
     saveCodeVerifier: () => undefined,
     codeVerifier: () => "x",
   };
