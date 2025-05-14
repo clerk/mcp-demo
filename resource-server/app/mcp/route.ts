@@ -4,6 +4,10 @@ import { randomUUID } from "node:crypto";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { default as _debug } from "debug";
+import {
+  createFakeIncomingMessage,
+  createServerResponseAdapter,
+} from "./server-response-adapter";
 
 const debug = _debug("mcp-demo-resource-server");
 
@@ -12,6 +16,7 @@ const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {};
 
 export async function POST(req: Request) {
   debug("Request hit MCP endpoint route");
+  console.log(req);
 
   // Check for an Authorization header
   if (!req.headers.get("Authorization")) {
@@ -43,6 +48,8 @@ export async function POST(req: Request) {
         },
       }
     );
+  } else {
+    // this is where we should verify the token with clerk
   }
 
   //
@@ -51,12 +58,13 @@ export async function POST(req: Request) {
 
   // Check for existing session ID
   const sessionId = req.headers.get("mcp-session-id");
+  const body = await req.json();
   let transport: StreamableHTTPServerTransport;
 
   if (sessionId && transports[sessionId]) {
     // Reuse existing transport
     transport = transports[sessionId];
-  } else if (!sessionId && isInitializeRequest(req.body)) {
+  } else if (!sessionId && isInitializeRequest(body)) {
     // New initialization request
     transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: () => randomUUID(),
@@ -79,11 +87,14 @@ export async function POST(req: Request) {
     });
 
     // this is where tools can be defined
+    // in our ideal world, we abstract away pretty much everything else in this
+    // file and this is the part the the user defines. we'll get there!
     server.tool(
       "roll_dice",
       "Rolls an N-sided die",
       { sides: z.number().int().min(2) },
       async ({ sides }) => {
+        debug("tool call executed");
         const value = 1 + Math.floor(Math.random() * sides);
         return {
           content: [{ type: "text", text: `🎲 You rolled a ${value}!` }],
@@ -108,7 +119,14 @@ export async function POST(req: Request) {
   }
 
   // Handle the request
-  // TODO: we have a very nasty type mismatch here since this was written to
-  // work with express but nextjs uses a web standard Request object
-  // await transport.handleRequest(req, res, req.body);
+  const incomingRequest = createFakeIncomingMessage({
+    method: req.method,
+    url: req.url,
+    headers: Object.fromEntries(req.headers),
+    body,
+  });
+
+  return createServerResponseAdapter(req.signal, async (fakeRes) => {
+    await transport.handleRequest(incomingRequest, fakeRes);
+  });
 }

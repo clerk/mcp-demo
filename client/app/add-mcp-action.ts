@@ -37,6 +37,7 @@ export async function submitIntegration(formData: FormData) {
   // discovery process, we will store them all here.
   interface Urls {
     oauthRedirectUrl: string;
+    mcpEndpoint: string;
     protectedResourceMetadata?: string;
     authServerMetadata?: string;
     authServer?: string;
@@ -46,6 +47,7 @@ export async function submitIntegration(formData: FormData) {
 
   const urls: Urls = {
     oauthRedirectUrl: "http://localhost:3000/oauth_callback",
+    mcpEndpoint: url.toString(),
   };
 
   // Make the initial un-authenticated request - we expect an error here
@@ -171,6 +173,7 @@ export async function submitIntegration(formData: FormData) {
     clientSecret: clientSecret!.toString(),
     callback: urls.oauthRedirectUrl,
     authServerUrl: urls.authServer || "",
+    mcpEndpoint: urls.mcpEndpoint,
   });
 
   const params = {

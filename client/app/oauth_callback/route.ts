@@ -1,6 +1,7 @@
 import fsStore from "@/stores/fs";
 import { type NextRequest } from "next/server";
 import { default as _debug } from "debug";
+import { redirect } from "next/navigation";
 
 const debug = _debug("mcp-demo-oauth-callback");
 
@@ -55,5 +56,13 @@ export async function GET(req: NextRequest) {
 
   debug("Response from /oauth/token endpoint", response);
 
-  return Response.json(response);
+  // persist the client id and token in the fs store
+  // we will need this
+  fsStore.write(clientInfo.clientId, {
+    oat: response.access_token,
+    mcpEndpoint: clientInfo.mcpEndpoint,
+    callbackUrl: clientInfo.callbackUrl,
+  });
+
+  return redirect(`/?client_id=${clientInfo.clientId}`);
 }
