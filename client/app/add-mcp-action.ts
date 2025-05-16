@@ -18,21 +18,6 @@ export async function submitIntegration(formData: FormData) {
 
   if (!url) return { error: "MCP server url not passed" };
 
-  // The url passed in is expected to be an MCP server, so we attempt to
-  // connect to it via the MCP protcol here
-  let transport: StreamableHTTPClientTransport;
-  let client: Client;
-  try {
-    transport = new StreamableHTTPClientTransport(new URL(url.toString()));
-    client = new Client({
-      name: "Clerk MCP Demo",
-      version: "0.0.1",
-    });
-  } catch (err) {
-    debug("MCP Client connection error", err);
-    return { error: "Error connecting to MCP client" };
-  }
-
   // We need to collect several URLs throughout the authorization server
   // discovery process, we will store them all here.
   interface Urls {
@@ -49,6 +34,21 @@ export async function submitIntegration(formData: FormData) {
     oauthRedirectUrl: "http://localhost:3000/oauth_callback",
     mcpEndpoint: url.toString(),
   };
+
+  // The url passed in is expected to be an MCP server, so we attempt to
+  // connect to it via the MCP protcol here
+  let transport: StreamableHTTPClientTransport;
+  let client: Client;
+  try {
+    transport = new StreamableHTTPClientTransport(new URL(url.toString()));
+    client = new Client({
+      name: "Clerk MCP Demo",
+      version: "0.0.1",
+    });
+  } catch (err) {
+    debug("MCP Client connection error", err);
+    return { error: "Error connecting to MCP client" };
+  }
 
   // Make the initial un-authenticated request - we expect an error here
   try {

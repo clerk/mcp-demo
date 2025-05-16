@@ -8,8 +8,7 @@
   "main": "index.js",
   "dependencies": {
     "@hono/node-server": "^1.14.1",
-    "@modelcontextprotocol/sdk": "^1.11.1",
-    "@vercel/mcp-adapter": "^0.3.1"
+    "@modelcontextprotocol/sdk": "^1.11.1"
   },
   "scripts": {
     "client": "DEBUG=mcp-demo-* cd client && npm run dev",
