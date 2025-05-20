@@ -7,6 +7,7 @@ const debug = _debug("mcp-demo-resource-server");
 
 export async function POST(req: Request) {
   if (!req.headers.get("Authorization")) {
+    debug("No authorization header, returning 401 w/ www-authenticate");
     // This is hard coded here, but we plan to make it such that if this
     // request is forwarded to the actual resource endpoint without auth, we
     // will return the value below automatically via Clerk's SDKs.
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
       }
     );
   } else {
-    debug("Verifying OAuth access token");
+    debug("Verifying OAuth access token with Clerk");
 
     const { subject } = await auth({ acceptsToken: "oauth_token" });
 

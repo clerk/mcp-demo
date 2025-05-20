@@ -5,7 +5,7 @@ import path from "node:path";
 const fsStore: { [state: string]: any } = {};
 const root = path.join(os.tmpdir(), "__mcp_demo");
 
-export default {
+const store = {
   write: (k: string, v: any) => {
     fsStore[k] = v;
     fs.writeFileSync(root, JSON.stringify(fsStore));
@@ -13,3 +13,5 @@ export default {
   read: (k: string) => JSON.parse(fs.readFileSync(root, "utf8"))[k],
   all: () => JSON.parse(fs.readFileSync(root, "utf8")),
 };
+
+export default store;

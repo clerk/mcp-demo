@@ -7,8 +7,7 @@
   "type": "module",
   "main": "index.js",
   "dependencies": {
-    "@hono/node-server": "^1.14.1",
-    "@modelcontextprotocol/sdk": "^1.11.1"
+    "@hono/node-server": "^1.14.1"
   },
   "scripts": {
     "client": "DEBUG=mcp-demo-* cd client && npm run dev",

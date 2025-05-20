@@ -1,53 +1,19 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import type { OAuthClientProvider } from "@modelcontextprotocol/sdk/client/auth.js";
 import { default as _debug } from "debug";
-import fsStore from "@/stores/fs";
+import { createTransport } from "@/lib/create-transport";
 
 const debug = _debug("mcp-demo-client-tool-call");
 
 export async function POST(request: Request) {
   const res = await request.json();
   debug("client id: ", res);
-  const clientInfo = fsStore.read(res.clientId);
 
-  debug("client info: ", clientInfo);
+  const transport = createTransport({ clientId: res.clientId });
 
-  // Implement auth provider
-  const authProvider: OAuthClientProvider = {
-    redirectUrl: clientInfo.oauthRedirectUrl,
-    clientMetadata: { redirect_uris: [clientInfo.callbackUrl] },
-    clientInformation: () => ({
-      client_id: clientInfo.clientId,
-      client_secret: clientInfo.clientSecret,
-    }),
-    saveClientInformation: () => undefined,
-    tokens: () => ({
-      access_token: clientInfo.oat,
-      token_type: "Bearer",
-    }),
-    saveTokens: () => undefined,
-    // returns a promise or void - seems maybe un-implemented?
-    redirectToAuthorization: (url) => undefined,
-    saveCodeVerifier: () => undefined,
-    codeVerifier: () => "x",
-  };
-
-  let transport: StreamableHTTPClientTransport;
-  let client: Client;
-  try {
-    transport = new StreamableHTTPClientTransport(
-      new URL(clientInfo.mcpEndpoint),
-      { authProvider }
-    );
-    client = new Client({
-      name: "Clerk MCP Demo",
-      version: "0.0.1",
-    });
-  } catch (err) {
-    console.log("MCP Client connection error", err);
-    return { error: "Error connecting to MCP client" };
-  }
+  const client = new Client({
+    name: "Clerk MCP Demo",
+    version: "0.0.1",
+  });
 
   await client.connect(transport);
 

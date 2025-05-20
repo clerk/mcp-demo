@@ -8,6 +8,7 @@ export default function IndexPageInternal() {
   const [needsCredentials, setNeedsCredentials] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toolResponse, setToolResponse] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const clientId = searchParams.get("client_id");
 
@@ -26,7 +27,7 @@ export default function IndexPageInternal() {
       // we expect this to return a redirect, so not handling the response
     } catch (error) {
       console.error("Error submitting integration:", error);
-      // Handle error state here
+      setError((error as Error).message);
     } finally {
       setIsSubmitting(false);
     }
@@ -148,6 +149,10 @@ export default function IndexPageInternal() {
                       />
                     </div>
                   </>
+                )}
+
+                {error && (
+                  <div className="text-red-500 text-sm mb-0">{error}</div>
                 )}
 
                 <button
