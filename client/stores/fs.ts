@@ -10,7 +10,12 @@ const store = {
     fsStore[k] = v;
     fs.writeFileSync(root, JSON.stringify(fsStore));
   },
-  read: (k: string) => JSON.parse(fs.readFileSync(root, "utf8"))[k],
+  read: (k: string) => {
+    if (!fs.existsSync(root)) {
+      fs.writeFileSync(root, "{}");
+    }
+    return JSON.parse(fs.readFileSync(root, "utf8"))[k];
+  },
   all: () => JSON.parse(fs.readFileSync(root, "utf8")),
 };
 

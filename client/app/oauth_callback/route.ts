@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
 
   const clientId = fsStore.read(state);
   debug("Client ID from state", clientId);
-  const transport = createTransport({ clientId });
+  const { transport } = createTransport({ clientId });
 
   transport.finishAuth(code);
 

@@ -5,6 +5,7 @@ import { default as _debug } from "debug";
 import type { OAuthClientInformationFull } from "@modelcontextprotocol/sdk/shared/auth.js";
 import type { OAuthClientProvider } from "@modelcontextprotocol/sdk/client/auth.js";
 import { randomUUID } from "node:crypto";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
 const debug = _debug("mcp-demo-client");
 
@@ -110,14 +111,6 @@ function createTransportWithKnownCredentials(
     oauthCallbackUrl
   );
 
-  if (!mcpEndpoint) {
-    throw new Error("MCP endpoint is required");
-  }
-
-  if (!oauthCallbackUrl) {
-    throw new Error("OAuth callback URL is required");
-  }
-
   const client = fsStore.read(clientId) || {};
 
   client.client_id = clientId;
@@ -215,7 +208,16 @@ function buildTransport(state: string, client: ClientInfo) {
   };
 
   debug("Creating transport with MCP endpoint:", client.mcpEndpoint);
-  return new StreamableHTTPClientTransport(new URL(client.mcpEndpoint!), {
-    authProvider,
+  const transport = new StreamableHTTPClientTransport(
+    new URL(client.mcpEndpoint!),
+    { authProvider }
+  );
+
+  debug("Creating MCP client");
+  const mcpClient = new Client({
+    name: "Clerk MCP Demo",
+    version: "0.0.1",
   });
+
+  return { transport, client: mcpClient, authProvider };
 }

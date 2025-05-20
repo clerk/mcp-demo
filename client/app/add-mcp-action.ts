@@ -3,6 +3,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { default as _debug } from "debug";
 import { createTransport } from "@/lib/create-transport";
+import { redirect } from "next/navigation";
 
 const debug = _debug("mcp-demo-client");
 
@@ -15,7 +16,7 @@ export async function submitIntegration(formData: FormData) {
 
   if (!mcpEndpoint) return { error: "MCP server url not passed" };
 
-  const transport = createTransport({
+  const { transport, authProvider } = createTransport({
     clientId,
     clientSecret,
     mcpEndpoint,
@@ -29,5 +30,11 @@ export async function submitIntegration(formData: FormData) {
 
   await client.connect(transport);
 
-  return { success: "MCP Client connected" };
+  const clientInfo = await authProvider.clientInformation();
+
+  if (!clientInfo?.client_id) {
+    throw new Error("Client ID not found on auth provider");
+  }
+
+  redirect(`/?client_id=${clientInfo.client_id}`);
 }
