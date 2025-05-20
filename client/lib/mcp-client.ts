@@ -26,8 +26,6 @@ type TransportParams = {
   mcpEndpoint?: string;
 };
 
-const CODE_VERIFIER_PREFIX = "pkce_verifier_";
-
 /**
  * Returns a streamable HTTP transport that can be used to connect to an MCP server.
  *
@@ -36,7 +34,7 @@ const CODE_VERIFIER_PREFIX = "pkce_verifier_";
  * 2. Known client without registration: Provide clientId, clientSecret, mcpEndpoint, and oauthCallbackUrl
  * 3. Existing client (OAuth callback/tool call): Provide only clientId (other details loaded from store)
  */
-export function createTransport(params: TransportParams) {
+export function createMcpClient(params: TransportParams) {
   const { clientId, clientSecret, oauthCallbackUrl, mcpEndpoint } = params;
   const state = randomUUID();
 
@@ -138,6 +136,8 @@ function createTransportForExistingClient(state: string, clientId: string) {
 
   return buildTransport(state, client);
 }
+
+const CODE_VERIFIER_PREFIX = "pkce_verifier_";
 
 /**
  * Builds the transport with the configured client information

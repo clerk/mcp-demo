@@ -1,13 +1,8 @@
-import { default as _debug } from "debug";
-import { createTransport } from "@/lib/create-transport";
-
-const debug = _debug("mcp-demo-client-tool-call");
+import { createMcpClient } from "@/lib/mcp-client";
 
 export async function POST(request: Request) {
   const res = await request.json();
-  debug("calling tool for client: ", res.clientId);
-
-  const { transport, client } = createTransport({ clientId: res.clientId });
+  const { transport, client } = createMcpClient({ clientId: res.clientId });
 
   await client.connect(transport);
 
