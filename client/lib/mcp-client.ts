@@ -49,7 +49,7 @@ export function createMcpClient(params: TransportParams) {
     );
   } else if (clientId && clientSecret && mcpEndpoint && oauthCallbackUrl) {
     debug("Creating transport with known credentials");
-    // Scenario 2: Known client without registration
+    // Scenario 2: Known client without dynamic registration
     return createTransportWithKnownCredentials(
       state,
       clientId,
@@ -58,7 +58,8 @@ export function createMcpClient(params: TransportParams) {
       oauthCallbackUrl
     );
   } else {
-    // Scenario 3: Existing client (OAuth callback or tool call)
+    // Scenario 3: Existing client, known client id (OAuth callback or tool 
+    // call)
     debug("Creating transport for existing client");
     return createTransportForExistingClient(state, clientId);
   }
@@ -128,7 +129,7 @@ function createTransportWithKnownCredentials(
 function createTransportForExistingClient(state: string, clientId: string) {
   debug("Existing client", state, clientId);
 
-  const client = fsStore.read(clientId);
+  let client = fsStore.read(clientId);
 
   if (!client) {
     throw new Error(`Client with ID ${clientId} not found in store`);
@@ -145,23 +146,31 @@ const CODE_VERIFIER_PREFIX = "pkce_verifier_";
 function buildTransport(state: string, client: ClientInfo) {
   const authProvider: OAuthClientProvider = {
     redirectUrl: client.oauthCallbackUrl!,
-    clientMetadata: { redirect_uris: client.redirectUris || [] },
+    // this info is used specifically to create an oauth client via dynamic 
+    // client registration
+    clientMetadata: {
+      redirect_uris: [client.oauthCallbackUrl!],
+      client_name: "Test Client",
+      client_uri: "https://example.com",
+      scope: "openid profile email",
+      // uncomment this to make a public client
+      // token_endpoint_auth_method: "none", 
+    },
     state: () => state,
     clientInformation: () => {
       if (!client.client_id) {
         return undefined;
       }
       // TODO: this should return the full client object
-      // it would need to exclude my custom additions mcpEndpoint and 
+      // it would need to exclude my custom additions mcpEndpoint and
       // oauthCallbackUrl though
       return {
         client_id: client.client_id,
         client_secret: client.client_secret,
-        client_name: 'Testing...',
-        redirect_uris: client.redirectUris || [],
       };
     },
     saveClientInformation: (newInfo: OAuthClientInformationFull) => {
+      debug('saving client info', newInfo)
       const completedClientRegistration =
         !client.client_id && newInfo.client_id;
 
@@ -169,6 +178,7 @@ function buildTransport(state: string, client: ClientInfo) {
         // Associate state with new client ID and save client information
         fsStore.write(state, newInfo.client_id);
         fsStore.write(newInfo.client_id, { ...client, ...newInfo });
+        client = { ...client, ...newInfo }
       } else {
         // Update existing client information
         fsStore.write(client.client_id!, { ...client, ...newInfo });
@@ -189,8 +199,8 @@ function buildTransport(state: string, client: ClientInfo) {
       redirect(url.toString());
     },
     saveCodeVerifier: (verifier: string) => {
-      const verifierKey = `${CODE_VERIFIER_PREFIX}${client.client_id}`;
-      debug(`Saving code verifier for client ${client.client_id}`);
+      const verifierKey = `${CODE_VERIFIER_PREFIX}${client.client_id || state}`;
+      debug(`Saving code verifier for client ${client.client_id || state}`);
       fsStore.write(verifierKey, verifier);
     },
     codeVerifier: () => {
@@ -199,7 +209,7 @@ function buildTransport(state: string, client: ClientInfo) {
 
       if (storedVerifier) {
         debug(
-          `Retrieved stored code verifier for client ${client.client_id}: ${storedVerifier}`
+          `Retrieved stored code verifier for client ${client.client_id || state}: ${storedVerifier}`
         );
         return storedVerifier;
       }
