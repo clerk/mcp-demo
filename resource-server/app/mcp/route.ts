@@ -3,13 +3,14 @@ import { createMcpHandler } from "@vercel/mcp-adapter";
 import { z } from "zod";
 
 export async function POST(req: Request) {
+  const origin = new URL(req.url).origin;
+
   // Authorize the request
   if (!req.headers.get("Authorization")) {
     return new Response(null, {
       status: 401,
       headers: {
-        "WWW-Authenticate":
-          "Bearer resource_metadata=http://localhost:3001/.well-known/oauth-protected-resource",
+        "WWW-Authenticate": `Bearer resource_metadata=${origin}/.well-known/oauth-protected-resource`,
       },
     });
   } else {

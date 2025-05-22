@@ -2,6 +2,10 @@
 
 This repo provides a demo of how [the most recent draft of the MCP spec](https://modelcontextprotocol.io/specification/draft/basic/authorization#2-6-authorization-flow-steps) could work. As far as we know, no LLM clients have implemented this version of the spec yet, so there is a test LLM client included in order to demonstrate the full flow, in addition to an application that includes the functionality of the authorization server, resource server, and MCP server combined.
 
+### Current State Notes
+- This requires [a patch to the mcp typescript sdk that adds the ability to handle a state param](https://github.com/modelcontextprotocol/typescript-sdk/pull/529)
+- The fact that the sdk goes looking for `.well-known/oauth-authorization-server` on the mcp endpoint is in violation of their own spec as well as the oauth spec, but it does save an entire extra request loop. im going to try to fix it in the MCP sdk though.
+
 ### Context
 
 In the currently published version of the MCP spec, the recommendation is that MCP be handled by a separate server, which also handles authentication and authorization. In this model, there are three, sometimes four entities:

@@ -1,18 +1,23 @@
+import { deriveFapiUrl } from "@/lib/derive-fapi-url";
+
 /**
  * OAuth 2.0 Authorization Server Metadata endpoint (RFC 8414)
  * @see https://datatracker.ietf.org/doc/html/rfc8414
+ * 
+ * Note: This should be on the authorization server, not the resource server. 
+ * It's provided here because the MCP SDK is not currently implemented 
+ * correctly and will go looking for this metadata route on the resource server 
+ * by default.
  */
 export async function GET() {
+  const fapiUrl = deriveFapiUrl();
+
   const metadata = {
-    issuer: "https://winning-antelope-92.clerk.accounts.dev",
-    authorization_endpoint:
-      "https://winning-antelope-92.clerk.accounts.dev/oauth/authorize",
-    registration_endpoint:
-      "https://winning-antelope-92.clerk.accounts.dev/oauth/register",
-    token_endpoint:
-      "https://winning-antelope-92.clerk.accounts.dev/oauth/token",
-    jwks_uri:
-      "https://winning-antelope-92.clerk.accounts.dev/.well-known/jwks.json",
+    issuer: fapiUrl,
+    authorization_endpoint: `${fapiUrl}/oauth/authorize`,
+    registration_endpoint: `${fapiUrl}/oauth/register`,
+    token_endpoint: `${fapiUrl}/oauth/token`,
+    jwks_uri: `${fapiUrl}/.well-known/jwks.json`,
     response_types_supported: ["code", "token"],
     grant_types_supported: ["authorization_code", "refresh_token"],
     token_endpoint_auth_methods_supported: ["client_secret_post"],
