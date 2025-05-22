@@ -2,6 +2,8 @@
  * OAuth 2.0 Protected Resource Metadata endpoint based on RFC 9728
  * @see https://datatracker.ietf.org/doc/html/rfc9728
  */
+// currently unused but its because the mcp sdk implementation is incorrect
+// https://github.com/modelcontextprotocol/modelcontextprotocol/issues/502
 export async function GET() {
   // Example metadata values
   // This will be provided natively via Clerk in the future, but is hard coded

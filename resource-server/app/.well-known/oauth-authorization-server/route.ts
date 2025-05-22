@@ -7,6 +7,8 @@ export async function GET() {
     issuer: "https://winning-antelope-92.clerk.accounts.dev",
     authorization_endpoint:
       "https://winning-antelope-92.clerk.accounts.dev/oauth/authorize",
+    registration_endpoint:
+      "https://winning-antelope-92.clerk.accounts.dev/oauth/register",
     token_endpoint:
       "https://winning-antelope-92.clerk.accounts.dev/oauth/token",
     jwks_uri:

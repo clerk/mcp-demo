@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     }
   }
 
-  // MCP handling
+  // Handle the MCP call
   return createMcpHandler((server) => {
     server.tool(
       "roll_dice",

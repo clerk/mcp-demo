@@ -19,6 +19,9 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  // If the state does not match the initial request, it won't be able to be 
+  // read out of the store, so this store read effectively acts as a state 
+  // param check.
   const clientId = fsStore.read(state);
   const { transport } = createMcpClient({ clientId });
 

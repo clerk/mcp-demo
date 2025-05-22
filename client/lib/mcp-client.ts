@@ -152,9 +152,13 @@ function buildTransport(state: string, client: ClientInfo) {
         return undefined;
       }
       // TODO: this should return the full client object
+      // it would need to exclude my custom additions mcpEndpoint and 
+      // oauthCallbackUrl though
       return {
         client_id: client.client_id,
         client_secret: client.client_secret,
+        client_name: 'Testing...',
+        redirect_uris: client.redirectUris || [],
       };
     },
     saveClientInformation: (newInfo: OAuthClientInformationFull) => {
