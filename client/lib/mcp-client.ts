@@ -129,7 +129,7 @@ function createTransportWithKnownCredentials(
 function createTransportForExistingClient(state: string, clientId: string) {
   debug("Existing client", state, clientId);
 
-  let client = fsStore.read(clientId);
+  const client = fsStore.read(clientId);
 
   if (!client) {
     throw new Error(`Client with ID ${clientId} not found in store`);

@@ -3,15 +3,11 @@ import { deriveFapiUrl } from "@/lib/derive-fapi-url";
 /**
  * OAuth 2.0 Protected Resource Metadata endpoint based on RFC 9728
  * @see https://datatracker.ietf.org/doc/html/rfc9728
- *
- * Note: This is currently unused, but this is only because the MCP SDK
- * implementation is incorrect. Once it is corrected, this will be used.
  */
 export async function protectedResourceHandler(request: Request) {
   const origin = new URL(request.url).origin;
   const fapiUrl = deriveFapiUrl();
 
-  // Example metadata values
   // This will be provided natively via Clerk in the future, but is hard coded
   // for now.
   const metadata = {

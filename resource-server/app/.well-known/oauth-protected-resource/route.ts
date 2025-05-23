@@ -1,4 +1,3 @@
-import { protectedResourceHandler } from "@/lib/protected-resource-handler";
+import { protectedResourceHandler } from "../../../lib/protected-resource-handler";
 
-const handler = protectedResourceHandler;
-export { handler as GET };
+export { protectedResourceHandler as GET };
