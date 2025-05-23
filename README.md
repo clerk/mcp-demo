@@ -1,10 +1,33 @@
-# MCP Demo - Latest Draft Spec
+# MCP Demo
+### Uses Clerk for auth, implements the latest MCP draft spec
 
-This repo provides a demo of how [the most recent draft of the MCP spec](https://modelcontextprotocol.io/specification/draft/basic/authorization#2-6-authorization-flow-steps) could work. As far as we know, no LLM clients have implemented this version of the spec yet, so there is a test LLM client included in order to demonstrate the full flow, in addition to an application that includes the functionality of the authorization server, resource server, and MCP server combined.
+This repo provides a demo of how [the most recent draft of the MCP spec](https://modelcontextprotocol.io/specification/draft/basic/authorization#2-6-authorization-flow-steps) could work. As far as we know, no major LLM clients have implemented this version of the spec yet, so there is a test LLM client included in order to demonstrate the full flow, in addition to an application that includes the functionality of the authorization server, resource server, and MCP server combined.
 
-### Current State Notes
-- This requires [a patch to the mcp typescript sdk that adds the ability to handle a state param](https://github.com/modelcontextprotocol/typescript-sdk/pull/529)
-- The fact that the sdk goes looking for `.well-known/oauth-authorization-server` on the mcp endpoint is in violation of their own spec as well as the oauth spec, but it does save an entire extra request loop. im going to try to fix it in the MCP sdk though.
+### Running the Demo
+
+The demo includes two separate apps - a **client**, and a **resource server**. To run them both, run `npm run deps` to install deps if this is the first time you're setting up the repo, then run `npm start`. If you'd like to run just one app or the other, `npm run client` and `npm run resource-server` will do the trick.
+
+This demo uses [Clerk](https://clerk.com) for authentication. To ensure the Clerk setup works correctly, you will need to:
+- Create [a new Clerk application](https://dashboard.clerk.com/apps/app_2vPiID331ZxCKtDWZEiuNCLYIN4/instances/ins_2vPiIE4V6YC4mE4jGkVe9J19znB) and drop the API keys for your app into the `resource-server/.env.local` file.
+- Send an email to `support@clerk.com` requesting to be opted in to the early access program for oauth access tokens and dynamic client registration, and send the instance id for the app you'd like to use this with (you can get this out of the url, it starts with `ins_`). We will get you set up with this as quick as we can.
+- If you'd like to test the "no dynamic client registration" mode, you will need to create an OAuth Application within your Clerk dashboard, which you can do so [by heading here](https://dashboard.clerk.com/last-active?path=oauth-applications), then creating an OAuth application, which will give you a client id and secret.
+
+After this setup is complete, you should be able to run the entire demo using `npm start`. If you would like to integrate the resource server with an existing LLM client like claude, cursor, etc, you will need to use a fork of the `mcp-remote` package ([this one](https://www.npmjs.com/package/@jescalan/mcp-remote?activeTab=readme)) since at the moment no major LLM client supports remote auth for MCP servers, and the current version of `mcp-remote` does not send a state parameter with the authorization request, which Clerk's OAuth implementation rejects as it can be a security issue.
+
+For example, in cursor, here's how you'd configure it
+
+```
+"Clerk MCP Demo": {
+  "command": "npx",
+    "args": [
+      "@jescalan/mcp-remote",
+      "http://localhost:3001/mcp",
+      "--allow-http"
+  ]
+}
+```
+
+The resource server should be in a deploy-able state, but the demo client is not yet, as it uses a filesystem storage adapter. We're working on further abstracting and improving the client tooling to add a redis adapter which would make it deployable.
 
 ### Context
 
@@ -26,13 +49,3 @@ This is a good thing, as it reduces the complexity and the number of servers tha
 [Clerk](https://clerk.com) is an authentication, authorization, and user management service, and we built this demo using Clerk because we work at Clerk, we like it, and because we think it provides a really clear example for how this setup can be run with minimal effort and cost. There is nothing that specifially ties it to Clerk though -- if you prefer to use another auth vendor, library, or build it yourself, that would work just fine here, so long as the vendor/library/code includes a spec-compliant OAuth2 server.
 
 If you'd like to fork this demo and replace Clerk with another auth solution, we absolutely welcome it, and would be happy to link it as an alternative in the readme if you let us know. Our goal is to enable folks to build MCP integrations as easily and smoothly as possible, and while we feel like Clerk can be a great way to enable this, there are lots of great auth tools out there and we would be thrilled to see this working with as many of them as possible.
-
-### Running the Demo
-
-The demo includes two separate apps - a client, and a resource server, as discussed above. In order for the demo to work correctly, you need to be running both of them. To do so, you can simply run `npm run deps` to install deps if this is the first time you're setting up the repo, then run `npm start`. If you'd like to run just one app or the other, `npm run client` and `npm run resource-server` will do the trick.
-
-This demo uses Clerk for authentication, so to make this work, you will need to create a new Clerk application (head to clerk.com) and drop the API keys for your app into the `.env.local` file.
-
-You will also need to create an OAuth Application within your Clerk dashboard, which you can do so [by heading here](https://dashboard.clerk.com/last-active?path=oauth-applications), then creating an OAuth application, which will give you a client id and secret. You will also need to modify [the oauth-protected-resource metadata route](https://github.com/clerk/mcp-demo/blob/main/resource-server/app/.well-known/oauth-protected-resource/route.ts) to match your app. Upon running the server, you will see a checkbox that says "No dynamic client registration" - check this box and put in your client id and secret, then hit the "add integration" button and you're off to the races.
-
-Currently, the app will get to the point where it clears auth and returns an OAuth token only. I'm working on having it go full circle such that it will also show how the Client can persist the OAuth token and pass it through to make a successful tool call, that is coming shortly.
