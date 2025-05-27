@@ -1,8 +1,13 @@
-import { createMcpClient } from "@/lib/mcp-client";
+import { getClientById } from "../../../clerk-mcp-tools/mcp-client";
+import fsStore from "../../../clerk-mcp-tools/stores/fs";
 
 export async function POST(request: Request) {
   const res = await request.json();
-  const { transport, client } = createMcpClient({ clientId: res.clientId });
+
+  const { transport, client } = getClientById({
+    clientId: res.clientId,
+    store: fsStore,
+  });
 
   await client.connect(transport);
 
