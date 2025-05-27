@@ -1,6 +1,6 @@
-import createMcpAuthHandler from "@/lib/handle-mcp-auth";
 import { auth } from "@clerk/nextjs/server";
 import { createMcpHandler } from "@vercel/mcp-adapter";
+import { createMcpAuthHandler } from "../../../clerk-mcp-tools/nextjs";
 import { z } from "zod";
 
 const handler = createMcpHandler((server) => {
@@ -22,4 +22,4 @@ const postHandler = createMcpAuthHandler(handler, async () => {
   return !!subject;
 });
 
-export { handler as GET, postHandler as POST, handler as DELETE };
+export { handler as GET, postHandler as POST };

@@ -1,16 +1,19 @@
-import { deriveFapiUrl } from "@/lib/derive-fapi-url";
-
 /**
- * OAuth 2.0 Protected Resource Metadata endpoint based on RFC 9728
+ * Generates protected resource metadata for the given publishable key and
+ * resource origin.
+ *
  * @see https://datatracker.ietf.org/doc/html/rfc9728
+ * @param publishableKey - Clerk publishable key
+ * @param origin - Origin of the resource to which the metadata applies
+ * @returns Protected resource metadata, serializable to JSON
  */
-export async function protectedResourceHandler(request: Request) {
-  const origin = new URL(request.url).origin;
-  const fapiUrl = deriveFapiUrl();
+export function generateProtectedResourceMetadata(
+  publishableKey: string,
+  origin: string
+) {
+  const fapiUrl = deriveFapiUrl(publishableKey);
 
-  // This will be provided natively via Clerk in the future, but is hard coded
-  // for now.
-  const metadata = {
+  return {
     resource: origin,
     authorization_servers: [fapiUrl],
     token_types_supported: ["urn:ietf:params:oauth:token-type:access_token"],
@@ -30,11 +33,10 @@ export async function protectedResourceHandler(request: Request) {
       },
     ],
   };
+}
 
-  return Response.json(metadata, {
-    headers: {
-      "Cache-Control": "max-age=3600",
-      "Content-Type": "application/json",
-    },
-  });
+function deriveFapiUrl(publishableKey: string) {
+  const key = publishableKey.replace(/^pk_(test|live)_/, "");
+  const decoded = Buffer.from(key, "base64").toString("utf8");
+  return "https://" + decoded.replace(/\$/, "");
 }
