@@ -1,6 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { createMcpHandler } from "@vercel/mcp-adapter";
-import { createMcpAuthHandler } from "../../../clerk-mcp-tools/nextjs";
+import { createMcpHandler, experimental_withMcpAuth as withMcpAuth } from "@vercel/mcp-adapter";
 import { z } from "zod";
 
 const handler = createMcpHandler((server) => {
@@ -17,7 +16,7 @@ const handler = createMcpHandler((server) => {
   );
 });
 
-const postHandler = createMcpAuthHandler(handler, async () => {
+const postHandler = withMcpAuth(handler, async () => {
   const { subject } = await auth({ acceptsToken: "oauth_token" });
   return !!subject;
 });
