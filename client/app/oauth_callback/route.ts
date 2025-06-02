@@ -4,7 +4,10 @@ import { completeOAuthHandler } from "../../../clerk-mcp-tools/nextjs";
 
 const handler = completeOAuthHandler({
   store: fsStore,
-  callback: ({ clientId }) => redirect(`/?client_id=${clientId}`),
+  callback: ({ transport }) => {
+    console.log(transport);
+    redirect("/");
+  },
 });
 
 export { handler as GET };

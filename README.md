@@ -1,13 +1,15 @@
 # MCP Demo
+
 ### Uses Clerk for auth, implements the latest MCP draft spec
 
-This repo provides a demo of how [the most recent draft of the MCP spec](https://modelcontextprotocol.io/specification/draft/basic/authorization#2-6-authorization-flow-steps) could work. As far as we know, no major LLM clients have implemented this version of the spec yet, so there is a test LLM client included in order to demonstrate the full flow, in addition to an application that includes the functionality of the authorization server, resource server, and MCP server combined.
+This repo provides a demo of how [the most recent draft of the MCP spec](https://modelcontextprotocol.io/specification/draft/basic/authorization#2-6-authorization-flow-steps) could work. As far as we know, no major LLM clients have implemented this version of the spec yet, so there is a test LLM client included in order to demonstrate the full flow, in addition to an application that includes the functionality of the resource server and MCP server combined, as has been suggested by the
 
 ### Running the Demo
 
 The demo includes two separate apps - a **client**, and a **resource server**. To run them both, run `npm run deps` to install deps if this is the first time you're setting up the repo, then run `npm start`. If you'd like to run just one app or the other, `npm run client` and `npm run resource-server` will do the trick.
 
 This demo uses [Clerk](https://clerk.com) for authentication. To ensure the Clerk setup works correctly, you will need to:
+
 - Create [a new Clerk application](https://dashboard.clerk.com/apps/app_2vPiID331ZxCKtDWZEiuNCLYIN4/instances/ins_2vPiIE4V6YC4mE4jGkVe9J19znB) and drop the API keys for your app into the `resource-server/.env.local` file.
 - Send an email to `support@clerk.com` requesting to be opted in to the early access program for oauth access tokens and dynamic client registration, and send the instance id for the app you'd like to use this with (you can get this out of the url, it starts with `ins_`). We will get you set up with this as quick as we can.
 - If you'd like to test the "no dynamic client registration" mode, you will need to create an OAuth Application within your Clerk dashboard, which you can do so [by heading here](https://dashboard.clerk.com/last-active?path=oauth-applications), then creating an OAuth application, which will give you a client id and secret.

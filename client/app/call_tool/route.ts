@@ -1,15 +1,22 @@
-import { getClientById } from "../../../clerk-mcp-tools/mcp-client";
+import { cookies } from "next/headers";
+import { getClientBySessionId } from "../../../clerk-mcp-tools/mcp-client";
 import fsStore from "../../../clerk-mcp-tools/stores/fs";
 
-export async function POST(request: Request) {
-  const res = await request.json();
+export async function POST() {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("mcp-session")?.value;
 
-  const { transport, client } = getClientById({
-    clientId: res.clientId,
+  if (!sessionId) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // we need to secure this a bit more i think than just client id
+  const { connect, client } = getClientBySessionId({
+    sessionId,
     store: fsStore,
   });
 
-  await client.connect(transport);
+  await connect();
 
   const toolRes = await client.callTool({
     name: "roll_dice",

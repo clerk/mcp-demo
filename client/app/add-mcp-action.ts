@@ -3,12 +3,11 @@
 import {
   createDynamicallyRegisteredMcpClient,
   createKnownCredentialsMcpClient,
+  type McpClientReturnType,
 } from "../../clerk-mcp-tools/mcp-client";
 import { redirect as _redirect } from "next/navigation";
-import { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { OAuthClientProvider } from "@modelcontextprotocol/sdk/client/auth.js";
 import fsStore from "../../clerk-mcp-tools/stores/fs";
+import { cookies } from "next/headers";
 
 export async function submitIntegration(formData: FormData) {
   // grab the data from the form submission
@@ -28,11 +27,7 @@ export async function submitIntegration(formData: FormData) {
   const redirect = (url: string) => _redirect(url);
   const store = fsStore;
 
-  let clientRes: {
-    transport: Transport;
-    authProvider: OAuthClientProvider;
-    client: Client;
-  };
+  let clientRes: McpClientReturnType;
 
   if (clientId && clientSecret) {
     // if a client id and secret are provided, use an existing oauth client
@@ -62,18 +57,24 @@ export async function submitIntegration(formData: FormData) {
     });
   }
 
-  const { transport, authProvider, client } = clientRes;
+  const { connect, sessionId } = clientRes;
+
+  // set the session id in a cookie
+  // TODO: what happens if the auth fails, like user rejects the oauth?
+  // - we set the cookie somewhat prematurely here, but we need to because this is the only place we have the session id
+  // - we can't set another cookie thats like "actually valid" because thats spoofable
+  // - we could set some sort of internal property on the client object that they completed auth i guess
+  const cookieStore = await cookies();
+  cookieStore.set("mcp-session", sessionId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 7,
+  });
 
   // connect to the mcp server
-  await client.connect(transport);
+  await connect();
 
-  // we put the client id in the url as a way to update the frontend
-  // so we can get this from the auth provider
-  const clientInfo = await authProvider.clientInformation();
-  if (!clientInfo?.client_id) {
-    throw new Error("Client ID not found on auth provider");
-  }
-
-  // add the client id to the url
-  redirect(`/?client_id=${clientInfo.client_id}`);
+  // does this get returned at all?
+  return { success: true };
 }

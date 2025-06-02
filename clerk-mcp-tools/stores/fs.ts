@@ -2,15 +2,19 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const fsStore: { [state: string]: any } = {};
+type JsonSerializable =
+  | null
+  | boolean
+  | number
+  | string
+  | JsonSerializable[]
+  | { [key: string]: JsonSerializable };
+
+const fsStore: { [state: string]: JsonSerializable } = {};
 const root = path.join(os.tmpdir(), "__mcp_demo");
 
-console.log(root);
-
 const store = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  write: (k: string, v: any) => {
+  write: (k: string, v: JsonSerializable) => {
     fsStore[k] = v;
     fs.writeFileSync(root, JSON.stringify(fsStore));
   },
@@ -20,7 +24,6 @@ const store = {
     }
     return JSON.parse(fs.readFileSync(root, "utf8"))[k];
   },
-  all: () => JSON.parse(fs.readFileSync(root, "utf8")),
 };
 
 export default store;
