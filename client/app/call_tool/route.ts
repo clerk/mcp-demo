@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
-import { getClientBySessionId } from "../../../clerk-mcp-tools/mcp-client";
-import fsStore from "../../../clerk-mcp-tools/stores/fs";
+import { getClientBySessionId } from "@clerk/mcp-tools/client";
+import fsStore from "@clerk/mcp-tools/stores/fs";
 
 export async function POST() {
   const cookieStore = await cookies();
@@ -11,7 +11,7 @@ export async function POST() {
   }
 
   // we need to secure this a bit more i think than just client id
-  const { connect, client } = getClientBySessionId({
+  const { connect, client } = await getClientBySessionId({
     sessionId,
     store: fsStore,
   });
