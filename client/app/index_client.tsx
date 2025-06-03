@@ -33,7 +33,6 @@ export default function IndexPageClient({
   };
 
   const handleToolCall = async () => {
-    console.log("calling tool");
     fetch("/call_tool", {
       method: "POST",
       body: JSON.stringify({}),

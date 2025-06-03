@@ -10,7 +10,6 @@ export async function POST() {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // we need to secure this a bit more i think than just client id
   const { connect, client } = await getClientBySessionId({
     sessionId,
     store: fsStore,

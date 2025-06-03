@@ -1,6 +1,6 @@
-import { protectedResourceHandler } from "../../../../clerk-mcp-tools/nextjs";
+import { protectedResourceHandlerClerk } from "@clerk/mcp-tools/next";
 
-const handler = protectedResourceHandler(
+const handler = protectedResourceHandlerClerk(
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!
 );
 

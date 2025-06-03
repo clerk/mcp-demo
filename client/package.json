@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@clerk/mcp-tools": "^0.0.1",
+    "@clerk/mcp-tools": "^0.0.2",
     "@modelcontextprotocol/sdk": "^1.12.0",
     "debug": "^4.4.1",
     "next": "15.3.2",

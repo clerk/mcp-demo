@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/backend": "2.0.0-snapshot.v20250514155045",
+    "@clerk/mcp-tools": "^0.0.2",
     "@clerk/nextjs": "6.20.0-snapshot.v20250514155045",
     "@vercel/mcp-adapter": "^0.7.0",
     "debug": "^4.4.1",

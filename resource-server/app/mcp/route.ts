@@ -1,9 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { createMcpHandler } from "@vercel/mcp-adapter";
-import { createMcpAuthHandler } from "../../../clerk-mcp-tools/nextjs";
+import { createMcpAuthHandler } from "@clerk/mcp-tools/next";
 import { z } from "zod";
 
-const handler = createMcpHandler((server) => {
+const handler = createMcpHandler(async (server) => {
   server.tool(
     "roll_dice",
     "Rolls an N-sided die",
