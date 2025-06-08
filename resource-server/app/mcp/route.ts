@@ -1,25 +1,41 @@
-import { auth } from "@clerk/nextjs/server";
-import { createMcpHandler } from "@vercel/mcp-adapter";
-import { createMcpAuthHandler } from "@clerk/mcp-tools/next";
-import { z } from "zod";
+import {
+  createMcpHandler,
+  experimental_withMcpAuth as withMcpAuth,
+} from "@vercel/mcp-adapter";
+import { auth, clerkClient } from "@clerk/nextjs/server";
+import { type MachineAuthObject } from "@clerk/backend";
 
-const handler = createMcpHandler(async (server) => {
+const clerk = await clerkClient();
+
+const handler = createMcpHandler((server) => {
   server.tool(
-    "roll_dice",
-    "Rolls an N-sided die",
-    { sides: z.number().int().min(2) },
-    async ({ sides }) => {
-      const value = 1 + Math.floor(Math.random() * sides);
+    "get-clerk-user-data",
+    "Gets data about the Clerk user that authorized this request",
+    {},
+    async (_, { authInfo }) => {
+      const clerkAuthInfo =
+        authInfo as unknown as MachineAuthObject<"oauth_token">;
+      if (!clerkAuthInfo?.subject) {
+        console.error(authInfo);
+        return {
+          content: [{ type: "text", text: "Error: user not authenticated" }],
+        };
+      }
+      const user = await clerk.users.getUser(clerkAuthInfo.subject);
       return {
-        content: [{ type: "text", text: `🎲 You rolled a ${value}!` }],
+        content: [{ type: "text", text: JSON.stringify(user) }],
       };
     }
   );
 });
 
-const postHandler = createMcpAuthHandler(handler, async () => {
-  const { subject } = await auth({ acceptsToken: "oauth_token" });
-  return !!subject;
-});
+const authHandler = withMcpAuth(
+  handler,
+  async (_, token) => {
+    if (!token) return null;
+    return await auth({ acceptsToken: "oauth_token" });
+  },
+  { required: true }
+);
 
-export { handler as GET, postHandler as POST };
+export { authHandler as GET, authHandler as POST };

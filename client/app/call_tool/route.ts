@@ -2,6 +2,12 @@ import { cookies } from "next/headers";
 import { getClientBySessionId } from "@clerk/mcp-tools/client";
 import fsStore from "@clerk/mcp-tools/stores/fs";
 
+// TODO: this type shouldn't be needed
+interface ToolResponseContentType {
+  type: string;
+  text: string;
+}
+
 export async function POST() {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get("mcp-session")?.value;
@@ -18,9 +24,20 @@ export async function POST() {
   await connect();
 
   const toolRes = await client.callTool({
-    name: "roll_dice",
-    arguments: { sides: 6 },
+    name: "get-clerk-user-data",
+    arguments: {},
   });
 
-  return Response.json(toolRes);
+  // User data is returned under the .content property as stringified JSON
+  const user = JSON.parse(
+    (toolRes.content as ToolResponseContentType[])[0].text
+  );
+
+  // Just return some of the data as an example
+  return Response.json({
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.emailAddresses[0].emailAddress,
+  });
 }

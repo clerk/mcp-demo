@@ -42,7 +42,7 @@ export default function IndexPageClient({
         if (res.error) {
           setToolError(`Tool call failed: ${res.error}`);
         }
-        setToolResponse(res.content);
+        setToolResponse(res);
       })
       .catch((error) => {
         console.error("Tool call failed:", error);
@@ -189,8 +189,8 @@ export default function IndexPageClient({
               Tool Call
             </h2>
             <p className="text-gray-600 mb-8 text-center">
-              Click the button below to trigger an MCP tool call that rolls a
-              dice.
+              Click the button below to trigger an MCP tool call that gets some
+              of the authorized user&apos;s data.
             </p>
             <button
               className="bg-emerald-600 text-white py-3 px-6 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium text-lg"
