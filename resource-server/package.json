@@ -11,10 +11,10 @@
   "dependencies": {
     "@clerk/backend": "2.0.0-snapshot.v20250514155045",
     "@clerk/mcp-tools": "^0.0.3",
-    "@clerk/nextjs": "6.20.0-snapshot.v20250514155045",
+    "@clerk/nextjs": "6.23.3",
     "@vercel/mcp-adapter": "^0.9.1",
     "debug": "^4.4.1",
-    "next": "15.3.3",
+    "next": "15.5.12",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "zod": "^3.25.56"
